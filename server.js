@@ -1,30 +1,39 @@
+// server.js
+
 const express = require('express');
-const axios = require('axios');
-const cheerio = require('cheerio');
+const cors = require('cors');
+require('dotenv').config();
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const port = process.env.PORT || 5000;
 
-// API endpoint to fetch data
-app.get('/api/fetch-data', async (req, res) => {
+app.use(cors());
+app.use(express.json());
+
+// Initialize Google Generative AI
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+app.post('/api/chat', async (req, res) => {
+  const { query } = req.body;
+
   try {
-    const { data } = await axios.get('https://headstarter.co/'); // Replace with your target URL
-    const $ = cheerio.load(data);
-    const questionsAndAnswers = [];
-
-    // Modify the selectors to match the structure of the website
-    $('h2.question').each((index, element) => {
-      const question = $(element).text();
-      const answer = $(element).next('p').text(); // Assuming the answer is in the next paragraph
-      questionsAndAnswers.push({ question, answer });
+    let chat = model.startChat({
+      history: [
+        { role: "user", parts: [{ text: "Hello" }] },
+        { role: "model", parts: [{ text: "Great to meet you. What would you like to know?" }] },
+      ],
     });
 
-    res.json(questionsAndAnswers);
+    const result = await chat.sendMessage(query);
+    res.json(result);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch data' });
+    console.error('Error querying Gemini API:', error); // Log detailed error information
+    res.status(500).json({ error: "Failed to retrieve data", details: error.message });
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });

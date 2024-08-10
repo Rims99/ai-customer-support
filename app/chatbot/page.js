@@ -5,13 +5,14 @@ import { TextField, Button, Box, List, ListItem, ListItemText, Divider } from '@
 import ChatIcon from '@mui/icons-material/Chat';
 import SendIcon from '@mui/icons-material/Send';
 import axios from 'axios';
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // Predefined questions and answers
 const knowledgeBase = {
   "What is Headstarter AI?": "Headstarter AI is a platform that offers a 7-week software engineering fellowship aimed at helping individuals kickstart their careers in tech.",
   "What is the Headstarter 7-week SWE Fellowship?": "The Headstarter 7-week SWE Fellowship is an intensive program designed to provide practical software engineering experience.",
   "How can I apply for the fellowship?": "You can apply for the fellowship by visiting the Headstarter AI website and filling out the application form.",
-  "What is the fellowship curriculum like?": "The curriculum includes hands-on projects, mentorship, and workshops focused on modern software engineering practices.",
+  "What is the fellowship curriculum like?": "The curriculum includes hands-on projects, mentorship, and workshops focused on modern software engineering practices.You can further check on click on this click ",
   "What are the benefits of joining the fellowship?": "Benefits include gaining real-world experience, networking opportunities, and the potential for job placements.",
   "Who are some successful alumni of the program?": "Some successful alumni include Jane Doe, who is now a software engineer at Google, and John Smith, who works at Facebook."
 };
@@ -59,34 +60,23 @@ const Chatbot = () => {
     if (predefinedAnswer) {
       addMessage(predefinedAnswer, 'bot');
     } else {
-      // Query OpenAI API for a response
-      const openAIResponse = await queryOpenAI(query);
-      addMessage(openAIResponse, 'bot');
+      // Query the Gemini API for a response
+      const geminiResponse = await queryGemini(query);
+      addMessage(geminiResponse, 'bot');
     }
   };
-
-  const queryOpenAI = async (query) => {
+  
+  const queryGemini = async (query) => {
     try {
-      const response = await axios.post(
-        'https://api.openai.com/v1/completions',
-        {
-          model: 'text-davinci-003', // or another model of your choice
-          prompt: query,
-          max_tokens: 150, // Adjust the max_tokens based on your needs
-          temperature: 0.7, // Adjust the temperature based on desired creativity
-        },
-        {
-          headers: {
-            'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`, // Use your OpenAI API key from .env.local
-          },
-        }
-      );
-      return response.data.choices[0].text.trim();
+      const response = await axios.post('http://localhost:5000/api/chat', { query }); // Use the full URL for the POST request
+      // Adjust this line based on the actual structure of the response returned by your server
+      return response.data.response.text || "Sorry, I couldn't retrieve an answer for that right now."; // Provide a default message
     } catch (error) {
-      console.error('Error querying OpenAI API:', error);
+      console.error('Error querying Gemini API:', error);
       return "Sorry, I couldn't retrieve an answer for that right now.";
     }
   };
+  
 
   return (
     <div style={styles.container}>
