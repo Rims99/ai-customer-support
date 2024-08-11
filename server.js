@@ -1,39 +1,63 @@
 // server.js
+const PORT =8000
+const express = require('express')
+const cors = express('cors')
+const app = express()
+app.use(cors())
+app.use(express.json())
+require('dotenv').config()
 
-const express = require('express');
-const cors = require('cors');
-require('dotenv').config();
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { GoogleGenrativeAI} = require('@google/genrative-ai')
+const genAI = new GoogleGenrativeAI(process.env.GEMINI_API_KEY)
 
-const app = express();
-const port = process.env.PORT || 5000;
+app.post('/gemini', async (req,res)=>{
+    console.log(req.body.history)
+    console.log(req.body.message)
+    const model = genAI.getGenrativeModel({model:'gemini-pro'})
+    const chat =model.startChat({
+        history: req.body.history
+    })
+    const msg = req.body.message
+    const result = await chat.sendMessage(msg)
+    const response = await result.response
+    const text = response.text()
+    res.send(text)
+}
+)
 
-app.use(cors());
-app.use(express.json());
+app.listen(PORT, () => console.log('Listening on port ${PORT}'))
 
-// Initialize Google Generative AI
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+// app.use(bodyParser.json());
 
-app.post('/api/chat', async (req, res) => {
-  const { query } = req.body;
+// // Existing chatbot endpoint
+// app.post('/chatbot', async (req, res) => {
+//     const userMessage = req.body.message;
 
-  try {
-    let chat = model.startChat({
-      history: [
-        { role: "user", parts: [{ text: "Hello" }] },
-        { role: "model", parts: [{ text: "Great to meet you. What would you like to know?" }] },
-      ],
-    });
+//     try {
+//         // Call to the Gemini API
+//         const response = await axios.post('https://api.gemini.com/v1/chat', {
+//             message: userMessage,
+//         }, {
+//             headers: {
+//                 'Authorization': `Bearer ${process.env.GEMINI_API_KEY}`,
+//                 'Content-Type': 'application/json',
+//             },
+//         });
 
-    const result = await chat.sendMessage(query);
-    res.json(result);
-  } catch (error) {
-    console.error('Error querying Gemini API:', error); // Log detailed error information
-    res.status(500).json({ error: "Failed to retrieve data", details: error.message });
-  }
-});
+//         const botReply = response.data.reply; // Adjust this based on the actual response structure
+//         res.json({ reply: botReply });
+//     } catch (error) {
+//         console.error('Error communicating with the Gemini API:', error);
+//         res.status(500).json({ error: 'Failed to communicate with the chatbot service' });
+//     }
+// });
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+// New feedback endpoint
+// app.post('/feedback', (req, res) => {
+//     const { feedback } = req.body;
+//     console.log('Feedback received:', feedback);
+
+//     // You can add logic to save feedback to a file, database, or just console log it
+//     res.status(200).send({ message: 'Feedback received' });
+// });
+

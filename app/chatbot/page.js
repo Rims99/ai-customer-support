@@ -1,12 +1,13 @@
-"use client"; // Marking the component as a Client Component
+'use client';
 
 import React, { useState } from 'react';
+import axios from 'axios';
 import { TextField, Button, Box, List, ListItem, ListItemText, Divider } from '@mui/material';
 import ChatIcon from '@mui/icons-material/Chat';
 import SendIcon from '@mui/icons-material/Send';
-import axios from 'axios';
+import ThumbsUpIcon from '@mui/icons-material/ThumbUp';
+import ThumbsDownIcon from '@mui/icons-material/ThumbDown';
 
-// Predefined questions and answers
 const knowledgeBase = {
   "What is Headstarter AI?": "Headstarter AI is a platform that offers a 7-week software engineering fellowship aimed at helping individuals kickstart their careers in tech.",
   "What is the Headstarter 7-week SWE Fellowship?": "The Headstarter 7-week SWE Fellowship is an intensive program designed to provide practical software engineering experience.",
@@ -50,61 +51,47 @@ const Chatbot = () => {
   };
 
   const addMessage = (text, type) => {
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { text, type, feedback: type === 'bot' ? <FeedbackButtons /> : null }
-    ]);
+    setMessages((prevMessages) => [...prevMessages, { text, type }]);
   };
 
   const handleQuery = async (query) => {
-    // Check if the query exists in the predefined knowledge base
     const predefinedAnswer = knowledgeBase[query];
     if (predefinedAnswer) {
       addMessage(predefinedAnswer, 'bot');
     } else {
-      // Query OpenAI API for a response
-      const openAIResponse = await queryOpenAI(query);
-      addMessage(openAIResponse, 'bot');
+      const geminiResponse = await queryGemini(query);
+      addMessage(geminiResponse, 'bot');
     }
   };
 
-
-  // Feedback Buttons Component with Emojis
-  const FeedbackButtons = () => {
-    const [selected, setSelected] = useState(null);
-
-    const handleClick = (feedback) => {
-      setSelected(feedback);
-      handleFeedback(feedback);
-    };
-
-    return (
-      <div style={styles.feedbackContainer}>
-        <Button
-          variant="outlined"
-          style={selected === 'like' ? styles.selectedButton : styles.feedbackButton}
-          onClick={() => handleClick('like')}
-        >
-          👍 Like
-        </Button>
-        <Button
-          variant="outlined"
-          style={selected === 'dislike' ? styles.selectedButton : styles.feedbackButton}
-          onClick={() => handleClick('dislike')}
-        >
-          👎 Dislike
-        </Button>
-      </div>
-    );
+  const queryGemini = async (query) => {
+    try {
+      const response = await axios.post('http://localhost:8000/gemini', { message: query });
+      const data= await response.text()
+      // return response.data.reply; 
+      setChatHistory(oldChatHistory => [...oldChatHistory , {
+        role: 'assistant',
+        parts: input
+      },
+      {
+        role: 'user',
+        parts: query
+      }
+    ])
+    setMessages("")
+    } catch (error) {
+      console.error('Error communicating with the backend:', error);
+      return 'Sorry, I could not retrieve a response at the moment.';
+    }
   };
 
-  // Handle feedback submission
-  const handleFeedback = async (feedback) => {
+  const handleFeedback = async (messageIndex, feedback) => {
+    const message = messages[messageIndex].text;
     try {
-      await axios.post('/feedback', { feedback });
-      console.log('Feedback submitted:', feedback);
+      await axios.post('http://localhost:3000/feedback', { message, feedback });
+      addMessage(`Thank you for your feedback!`, 'bot');
     } catch (error) {
-      console.error('Error submitting feedback:', error);
+      console.error('Error sending feedback:', error);
     }
   };
 
@@ -146,12 +133,36 @@ const Chatbot = () => {
               ))}
             </List>
           </Box>
+
+          <Divider orientation="vertical" flexItem style={styles.verticalDivider} />
+
           <Box style={styles.chatBox}>
             <div style={styles.chatWindow}>
               {messages.map((msg, index) => (
                 <div key={index} style={msg.type === 'user' ? styles.userMessage : styles.botMessage}>
                   {msg.text}
-                  {msg.feedback} {/* This is where feedback buttons with emojis should appear */}
+                  {msg.type === 'bot' && (
+                    <div style={styles.feedbackContainer}>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        color="success"
+                        startIcon={<ThumbsUpIcon />}
+                        onClick={() => handleFeedback(index, 'like')}
+                      >
+                        Like
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        color="error"
+                        startIcon={<ThumbsDownIcon />}
+                        onClick={() => handleFeedback(index, 'dislike')}
+                      >
+                        Dislike
+                      </Button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -164,11 +175,11 @@ const Chatbot = () => {
                 style={styles.input}
                 InputProps={{
                   style: {
-                    borderColor: '#F99312', // Change this to your desired outline color
+                    borderColor: '#F99312',
                   },
                 }}
                 InputLabelProps={{
-                  style: { color: '#F99312' }, // Change label color
+                  style: { color: '#F99312' },
                 }}
               />
               <Button type="submit" variant="contained" color="primary" style={styles.button}>
@@ -210,47 +221,49 @@ const styles = {
   icon: {
     marginRight: '15px',
     fontSize: '36px',
-    color: '#FFFFFF',
   },
   headerDescription: {
-    margin: '5px 0 0 0',
+    margin: 0,
+    marginTop: '5px',
     fontSize: '16px',
-    color: '#FFFFFF',
   },
   startButtonContainer: {
     display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
     justifyContent: 'center',
-    flex: 1,
+    alignItems: 'center',
+    height: '100%',
   },
   startButton: {
-    backgroundColor: '#FFFFFF',
-    color: '#F99312',
-    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
-    height: '50px',
-    width: '400px',
-    borderRadius: '20px',
-    fontSize: '15px',
-    marginBottom: '30px',
+    backgroundColor: '#F99312',
+    color: '#FFFFFF',
+    padding: '10px 20px',
+    fontSize: '18px',
+    display: 'flex',
+    alignItems: 'center',
   },
   chatContainer: {
     display: 'flex',
-    flexDirection: 'row',
     height: '100%',
-    width: '100%',
+    justifyContent: 'space-between',
   },
   predefinedQuestionsContainer: {
     width: '30%',
-    paddingRight: '20px',
+    backgroundColor: '#f5f5f5',
+    borderRadius: '8px',
+    padding: '10px',
+    maxHeight: 'calc(100vh - 200px)',
+    overflowY: 'auto',
   },
   predefinedQuestionsHeader: {
+    margin: 0,
     fontSize: '18px',
-    fontWeight: 'bold',
-    marginBottom: '10px',
+    color: '#F99312',
   },
   predefinedQuestionText: {
-    fontSize: '16px',
+    color: '#000000',
+  },
+  verticalDivider: {
+    margin: '0 20px',
   },
   chatBox: {
     width: '70%',
@@ -259,36 +272,36 @@ const styles = {
     justifyContent: 'space-between',
   },
   chatWindow: {
-    flexGrow: 1,
-    padding: '10px',
-    borderRadius: '8px',
-    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
-    marginBottom: '10px',
-    backgroundColor: '#f0f0f0',
+    flex: 1,
     overflowY: 'auto',
+    padding: '10px',
+    backgroundColor: '#FFFFFF',
+    borderRadius: '8px',
+    marginBottom: '10px',
+    border: '1px solid #F99312',
   },
   userMessage: {
     alignSelf: 'flex-end',
-    backgroundColor: '#f0f0f0',
-    padding: '10px',
-    borderRadius: '15px',
-    marginBottom: '10px',
+    backgroundColor: '#F99312',
+    color: '#FFFFFF',
+    padding: '10px 15px',
+    borderRadius: '8px',
+    margin: '5px 0',
     maxWidth: '60%',
-    textAlign: 'right',
   },
   botMessage: {
     alignSelf: 'flex-start',
-    backgroundColor: '#F99312',
-    color: '#FFFFFF',
-    padding: '10px',
-    borderRadius: '15px',
-    marginBottom: '10px',
+    backgroundColor: '#FFFFFF',
+    color: '#333',
+    padding: '10px 15px',
+    borderRadius: '8px',
+    margin: '5px 0',
     maxWidth: '60%',
-    textAlign: 'left',
+    border: '1px solid #F99312',
   },
   form: {
     display: 'flex',
-    flexDirection: 'row',
+    alignItems: 'center',
   },
   input: {
     flex: 1,
@@ -297,25 +310,14 @@ const styles = {
   button: {
     backgroundColor: '#F99312',
     color: '#FFFFFF',
+    padding: '10px',
   },
   feedbackContainer: {
-    display: 'flex',
-    justifyContent: 'center',
     marginTop: '10px',
-  },
-  feedbackButton: {
-    margin: '0 5px',
-    backgroundColor: '#FFFFFF',
-    color: '#F99312',
-    borderColor: '#F99312',
-  },
-  selectedButton: {
-    margin: '0 5px',
-    backgroundColor: 'green', // Change to green when selected
-    color: '#FFFFFF',
+    display: 'flex',
+    justifyContent: 'flex-end',
+    gap: '10px',
   },
 };
 
 export default Chatbot;
-
-
