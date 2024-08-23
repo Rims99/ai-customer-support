@@ -1,0 +1,124 @@
+{
+    "reviews": [
+      {
+        "professor": "Dr. Emily Carter",
+        "subject": "Biology",
+        "stars": 5,
+        "review": "Dr. Carter is incredibly knowledgeable and makes complex topics easy to understand."
+      },
+      {
+        "professor": "Prof. John Smith",
+        "subject": "Mathematics",
+        "stars": 4,
+        "review": "Great at explaining concepts, but the homework can be quite challenging."
+      },
+      {
+        "professor": "Dr. Sarah Johnson",
+        "subject": "Chemistry",
+        "stars": 3,
+        "review": "Interesting lectures, but the exams are very difficult and not reflective of the material covered."
+      },
+      {
+        "professor": "Prof. Michael Brown",
+        "subject": "History",
+        "stars": 5,
+        "review": "Engaging and passionate about the subject. Makes history come alive!"
+      },
+      {
+        "professor": "Dr. Linda Davis",
+        "subject": "Physics",
+        "stars": 4,
+        "review": "Very thorough in her explanations, but the pace can be a bit fast for some students."
+      },
+      {
+        "professor": "Prof. James Wilson",
+        "subject": "Computer Science",
+        "stars": 5,
+        "review": "Excellent professor! Always available for help and truly cares about student success."
+      },
+      {
+        "professor": "Dr. Patricia Martinez",
+        "subject": "Psychology",
+        "stars": 2,
+        "review": "The lectures are dry and not very engaging. I expected more interaction."
+      },
+      {
+        "professor": "Prof. Robert Garcia",
+        "subject": "Economics",
+        "stars": 4,
+        "review": "Very knowledgeable and provides real-world examples, but the grading can be harsh."
+      },
+      {
+        "professor": "Dr. Jennifer Lee",
+        "subject": "Literature",
+        "stars": 5,
+        "review": "A fantastic professor who encourages critical thinking and deep analysis."
+      },
+      {
+        "professor": "Prof. William Anderson",
+        "subject": "Philosophy",
+        "stars": 3,
+        "review": "Interesting discussions, but sometimes feels disorganized."
+      },
+      {
+        "professor": "Dr. Barbara Thomas",
+        "subject": "Statistics",
+        "stars": 4,
+        "review": "Great at breaking down complex data concepts into understandable pieces."
+      },
+      {
+        "professor": "Prof. Charles Jackson",
+        "subject": "Sociology",
+        "stars": 5,
+        "review": "Very engaging and makes the subject relatable to current events."
+      },
+      {
+        "professor": "Dr. Susan White",
+        "subject": "Art History",
+        "stars": 4,
+        "review": "Passionate about the subject and provides a lot of useful resources."
+      },
+      {
+        "professor": "Prof. Joseph Harris",
+        "subject": "Political Science",
+        "stars": 3,
+        "review": "Good lectures, but could use more structure in assignments."
+      },
+      {
+        "professor": "Dr. Nancy Clark",
+        "subject": "Environmental Science",
+        "stars": 5,
+        "review": "Incredibly passionate about the environment and inspires students to take action."
+      },
+      {
+        "professor": "Prof. Daniel Lewis",
+        "subject": "Business Management",
+        "stars": 4,
+        "review": "Practical insights and real-world applications make his classes valuable."
+      },
+      {
+        "professor": "Dr. Karen Robinson",
+        "subject": "Engineering",
+        "stars": 3,
+        "review": "Good knowledge, but the course material is very dense and challenging."
+      },
+      {
+        "professor": "Prof. Steven Walker",
+        "subject": "Music Theory",
+        "stars": 5,
+        "review": "A wonderful teacher who makes learning music theory fun and engaging!"
+      },
+      {
+        "professor": "Dr. Lisa Hall",
+        "subject": "Nursing",
+        "stars": 4,
+        "review": "Very supportive and provides great feedback on practical skills."
+      },
+      {
+        "professor": "Prof. Kevin Young",
+        "subject": "Theater",
+        "stars": 5,
+        "review": "Incredibly inspiring and encourages creativity in all students."
+      }
+    ]
+  }
